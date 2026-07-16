@@ -10,8 +10,8 @@ android {
         applicationId 'com.beatsportable.beats'
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 21
-        versionName "1.7.5b"
+        versionCode 22
+        versionName "1.7.5b-android2026"
     }
 
     useLibrary 'org.apache.http.legacy'
