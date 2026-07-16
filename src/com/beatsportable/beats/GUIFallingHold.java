@@ -81,19 +81,22 @@ public class GUIFallingHold extends GUIFallingObject {
 		//TODO diagonal clip paths for up/down arrows (straight for left/right)
 		path.addRect(rect_left, hold_rect_top, rect_right, hold_rect_bottom, Direction.CCW);
 		
+		// Narrow the clip to the hold body, then restore to the arrow-space clip.
+		// save()/restore() replaces the old Region.Op.REPLACE reset (banned on API 26+).
+		canvas.save();
 		canvas.clipPath(path, Op.INTERSECT);
-		
+
 		//need to swap comparison direction based on motion direction, hence xor
 		for (int y = hold_draw_start; (y <= hold_draw_end) ^ fallingDown; y += hold_draw_add) {
 			canvas.drawBitmap(
 					drawarea.getBitmap(
 							holdRsrc(mode, false),
 							Tools.button_w, holdimg_h
-							), 
+							),
 					rect_left, y, null);
 		}
-		
-		drawarea.setClip_arrowSpace(canvas);
+
+		canvas.restore();
 		
 		//end arrow (top)
 		canvas.drawBitmap(

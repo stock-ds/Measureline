@@ -13,7 +13,7 @@
 	<string name="Url_demo">"http://beatsportable.com/demo/"</string>
 	<string name="Url_todo">"http://beatsportable.com/todo/"</string>
 	<string name="Url_changelog">"http://beatsportable.com/changelog/"</string>
-	<string name="Url_downloads">"http://beatsportable.com/download-songs/"</string>
+	<string name="Url_downloads">"https://stepmaniaonline.net/"</string>
 	<string name="Url_donate">"http://beatsportable.com/donate/"</string>
 	<string name="Url_version">"http://beatsportable.com/static/releases/version.txt"</string>
 	
@@ -143,6 +143,8 @@
 	<string name="debugTapboxDefault">"0"</string>
 	<string name="installSamples">"installSamples"</string>
 	<string name="installSamplesDefault">"1"</string>
+	<string name="publicStorageMigrated">"publicStorageMigrated"</string>
+	<string name="publicStorageMigratedDefault">"0"</string>
 	<string name="resetSettings">"resetSettings"</string>
 	<string name="resetSettingsDefault">"1"</string>
 	<string name="resetHighScores">"resetScores"</string>

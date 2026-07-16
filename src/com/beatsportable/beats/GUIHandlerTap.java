@@ -410,14 +410,18 @@ public class GUIHandlerTap extends GUIHandler {
 	}
 	
 	@Override
-	public void drawFallingObjects(Canvas canvas, GUIDrawingArea drawarea) {		
+	public void drawFallingObjects(Canvas canvas, GUIDrawingArea drawarea) {
+		// Save the full-screen clip so it can be restored below. Region.Op.REPLACE
+		// (which used to expand the clip back out) is banned on API 26+, so we rely
+		// on save()/restore() instead.
+		canvas.save();
 		drawarea.setClip_arrowSpace(canvas);
 		fallingobj_arr = fallingobjects.fetchAll(fallingobj_arr);
 		for (GUIFallingObject o: fallingobj_arr) {
 			if (o == null) break;
 			o.draw(drawarea, canvas);
 		}
-		drawarea.setClip_screen(canvas);
+		canvas.restore();
 				
 		for (int pitch = 0; pitch < Tools.PITCHES; pitch++) {
 			if (!dark || arrows[pitch].clicked) {

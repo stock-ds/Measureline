@@ -91,19 +91,35 @@ public class PushReceiver extends BroadcastReceiver
             }	    	
 	    }
 						
-		// Create the notification
-		Notification notification = new Notification(appIcon, message, System.currentTimeMillis());
+		// Create the notification using Notification.Builder (required for API 23+)
+		Notification notification;
 		
 		// Set the intent to perform when tapped
 		if (launchIntent != null)
 		{
 			launchIntent.putExtras(intent);
-			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-			notification.setLatestEventInfo(context, appName, message, contentIntent);
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+			notification = new Notification.Builder(context)
+				.setSmallIcon(appIcon)
+				.setTicker(message)
+				.setWhen(System.currentTimeMillis())
+				.setContentTitle(appName)
+				.setContentText(message)
+				.setContentIntent(contentIntent)
+				.setAutoCancel(true)
+				.getNotification();
 		}
-		
-		// Auto dismiss when tapped
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+		else
+		{
+			notification = new Notification.Builder(context)
+				.setSmallIcon(appIcon)
+				.setTicker(message)
+				.setWhen(System.currentTimeMillis())
+				.setContentTitle(appName)
+				.setContentText(message)
+				.setAutoCancel(true)
+				.getNotification();
+		}
         
         int notificationId = 0;
         

@@ -120,86 +120,66 @@ public class MenuHome extends Activity {
 	}
 	*/
 	
-	private void showNotes() {
-		
-		// New User notes
-		if (!Tools.getBooleanSetting(R.string.ignoreNewUserNotes, R.string.ignoreNewUserNotesDefault)) {
-			
-			DialogInterface.OnClickListener website_action = new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-					Tools.startWebsiteActivity(Tools.getString(R.string.Url_demo));
+	private boolean allFilesAccessAsked = false;
+
+	// Ensures the song folder exists in a user-accessible location. On Android 11+
+	// this needs "All files access"; if we don't have it yet, prompt the user.
+	// Startup info popups were intentionally removed, so folder/sample setup lives here.
+	private void ensureStorageAccess() {
+		if (Tools.hasAllFilesAccess()) {
+			if (Tools.isMediaMounted() && Tools.makeBeatsDir()) {
+				// One-time migration for installs upgrading from the old scoped-storage
+				// build: repopulate the bundled sample pack in the new public folder.
+				if (!Tools.getBooleanSetting(R.string.publicStorageMigrated, R.string.publicStorageMigratedDefault)) {
+					Tools.putSetting(R.string.publicStorageMigrated, "1");
+					Tools.putSetting(R.string.installSamples, "1");
 				}
-			};
-			
-			DialogInterface.OnClickListener close_action = new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
+				// Install the sample pack on first run (or after the migration above).
+				if (Tools.getBooleanSetting(R.string.installSamples, R.string.installSamplesDefault)) {
+					Tools.installSampleSongs(this);
+					Tools.putSetting(R.string.installSamples, "0");
 				}
-			};
-			
-			Tools.note(
-					Tools.getString(R.string.MenuHome_new_user_notes_title),
-					R.drawable.icon_small,
-					Tools.getString(R.string.MenuHome_new_user_notes),
-					Tools.getString(R.string.Button_demo),
-					website_action,
-					Tools.getString(R.string.Button_close),
-					close_action,
-					R.string.ignoreNewUserNotes
-					);
-		}
-		
-		// Beta notes
-		if (Tools.getBooleanSetting(R.string.App_version, R.string.betaNotesDefault) ||
-			!Tools.getBooleanSetting(R.string.ignoreBetaNotes, R.string.ignoreBetaNotesDefault)) {
-			// Beta warning
-			DialogInterface.OnClickListener forums_action = new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					Tools.putSetting(R.string.App_version, "0");					
-					dialog.cancel();
-					Tools.startWebsiteActivity(Tools.getString(R.string.Url_updates));
-				}
-			};
-			
-			DialogInterface.OnClickListener close_action = new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					Tools.putSetting(R.string.App_version, "0");					
-					dialog.cancel();
-				}
-			};
-			
-			
-			Tools.note(
-					Tools.getString(R.string.MenuHome_release_notes_title),
-					R.drawable.icon_small,
-					Tools.getString(R.string.MenuHome_release_notes),
-					Tools.getString(R.string.Button_updates),
-					forums_action,
-					Tools.getString(R.string.Button_close),
-					close_action,
-					R.string.ignoreBetaNotes
-					);
-		}
-		
-		/*
-		if (!new File(Tools.getNoteSkinsDir()).canRead()) {
-			Tools.installGraphics(this);
-		}
-		*/
-		
-		if (Tools.getBooleanSetting(R.string.installSamples, R.string.installSamplesDefault) ||
-			!Tools.getBooleanSetting(R.string.ignoreNewUserNotes, R.string.ignoreNewUserNotesDefault)) {
-			// Make folders and install sample songs
-			if (Tools.isMediaMounted() && 
-				Tools.makeBeatsDir()
-				) {
-				Tools.installSampleSongs(this);
-				Tools.putSetting(R.string.installSamples, "0");
 			}
-		} else {
-			// Always make folders
-			if (Tools.isMediaMounted()) Tools.makeBeatsDir();
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			promptForAllFilesAccess();
+		}
+	}
+
+	private void promptForAllFilesAccess() {
+		if (allFilesAccessAsked) return; // only ask once per session
+		allFilesAccessAsked = true;
+		new AlertDialog.Builder(this)
+			.setTitle("Allow access to songs folder")
+			.setMessage("To add your own songs, Beats needs \"All files access\". "
+				+ "This lets it use the Beats folder on your internal storage "
+				+ "(/storage/emulated/0/Beats), which you can open in any file manager.\n\n"
+				+ "Tap Continue, then turn on the toggle for Beats.")
+			.setCancelable(true)
+			.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+					openAllFilesAccessSettings();
+				}
+			})
+			.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+				}
+			})
+			.show();
+	}
+
+	private void openAllFilesAccessSettings() {
+		try {
+			Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+			intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+			startActivity(intent);
+		} catch (Exception e) {
+			try {
+				startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+			} catch (Exception e2) {
+				Tools.toast("Please enable 'All files access' for Beats in Settings > Apps.");
+			}
 		}
 	}
 	
@@ -324,7 +304,7 @@ public class MenuHome extends Activity {
 		
 		updateCheck();
 		versionCheck();
-		showNotes();
+		ensureStorageAccess();
 		
 		if (Tools.getBooleanSetting(R.string.additionalVibrations, R.string.additionalVibrationsDefault)) {
 			v = ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE));
@@ -575,6 +555,9 @@ public class MenuHome extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		// Re-check after returning from the system "All files access" settings screen,
+		// so the public song folder gets created as soon as access is granted.
+		ensureStorageAccess();
 		setupInitialFocus();
 	}
 	

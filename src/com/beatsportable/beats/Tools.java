@@ -9,6 +9,7 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,6 +42,23 @@ public class Tools {
 	public static boolean disabledBackgroundData = false;
 	public static boolean tablet = false;
 	public static int screen_w = 0;
+	
+	public static Context getAppContext() {
+		if (c != null) {
+			return c;
+		}
+		try {
+			Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
+			java.lang.reflect.Method currentApplicationMethod = activityThreadClass.getDeclaredMethod("currentApplication");
+			Context app = (Context) currentApplicationMethod.invoke(null);
+			if (app != null) {
+				return app;
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return null;
+	}
 	public static int screen_h = 0;
 	public static int screen_s = 0;
 	public static int screen_r = 0;
@@ -431,12 +449,41 @@ public class Tools {
 		}
 	}
 	
+	// Returns true if the app can freely read/write public external storage.
+	// On Android 11+ this needs the "All files access" (MANAGE_EXTERNAL_STORAGE)
+	// special permission; on older versions the legacy storage permission suffices.
+	public static boolean hasAllFilesAccess() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			return Environment.isExternalStorageManager();
+		}
+		return true;
+	}
+
+	// Base folder for all Beats data (Songs, Backgrounds, NoteSkins, ...).
+	// When we have All Files Access we use a public, file-manager-visible folder
+	// (/storage/emulated/0/Beats); otherwise we fall back to the app-scoped
+	// external files dir so the app keeps working without the special permission.
+	public static String getBeatsBasePath() {
+		if (hasAllFilesAccess()) {
+			File ext = Environment.getExternalStorageDirectory();
+			if (ext != null) {
+				return ext.getAbsolutePath() + res.getString(R.string.Tools_path_beats);
+			}
+		}
+		Context context = getAppContext();
+		if (context != null) {
+			File extFiles = context.getExternalFilesDir(null);
+			if (extFiles != null) {
+				return extFiles.getAbsolutePath();
+			}
+		}
+		return null;
+	}
+
 	public static boolean makeBeatsDir() {
 		try {
-			String dir = 
-				Environment.getExternalStorageDirectory() + 
-				res.getString(R.string.Tools_path_beats)
-				;
+			String dir = getBeatsBasePath();
+			if (dir == null) return false;
 			File beats = new File(dir);
 			File songs = new File(dir + res.getString(R.string.Tools_path_songs));
 			File nomedia = new File(dir + res.getString(R.string.Tools_path_nomedia));
@@ -482,7 +529,7 @@ public class Tools {
 			}
 		} catch (Exception e) {
 			Tools.toast("Error: " + e.getMessage());
-			ToolsTracker.error("Tools.makeBeatsDir", e, c.getLocalClassName());
+			ToolsTracker.error("Tools.makeBeatsDir", e, (c != null) ? c.getLocalClassName() : "");
 			return false;
 		}
 		return true;
@@ -496,10 +543,8 @@ public class Tools {
 					);
 			return null;
 		} else {
-			String path =
-				Environment.getExternalStorageDirectory() + 
-				res.getString(R.string.Tools_path_beats)
-				;
+			String path = getBeatsBasePath();
+			if (path == null) return null;
 			File f = new File(path);
 			if (f.exists() && f.isDirectory()) {
 				return path;

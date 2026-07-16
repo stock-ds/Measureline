@@ -1497,7 +1497,7 @@ public class LocalyticsSession
 		                        if (pushRegId == null || TextUtils.isEmpty(pushRegId) || !appVersion.equals(pushRegVersion))
 		                        {
 			                        Intent registrationIntent = new Intent("com.google.android.c2dm.intent.REGISTER");
-			                        registrationIntent.putExtra("app", PendingIntent.getBroadcast(mContext, 0, new Intent(), 0));
+			                        registrationIntent.putExtra("app", PendingIntent.getBroadcast(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE));
 			                        registrationIntent.putExtra("sender", senderId);
 			                        mContext.startService(registrationIntent);
 		                        }

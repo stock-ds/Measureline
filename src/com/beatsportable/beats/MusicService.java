@@ -128,19 +128,25 @@ public class MusicService {
 	
 	public void onDestroy() {
 		if (p != null) {
-			try {
-				p.stop();
-				p.release();
-				p = null;
-			} catch (IllegalStateException e) {
-				ToolsTracker.error("MusicService.onDestroy", e, musicFilePath);
-				Tools.toast(
-						Tools.getString(R.string.MusicService_unable_stop_playback) +
-						Tools.getString(R.string.Tools_error_msg) +
-						e.getMessage() + 
-						Tools.getString(R.string.Tools_notify_msg)
-						);
-			}
+			// MediaPlayer.stop()/release() can block the calling thread for a while on
+			// real hardware while the codec tears down (this is a well-known Android
+			// behavior; it's usually near-instant on emulators using software codecs,
+			// which is why this wasn't noticed until testing on a real device). Since
+			// onDestroy() runs on the UI thread and nothing touches the player after
+			// this call, hand the actual teardown off to a background thread instead
+			// of blocking the exit/back transition.
+			final MediaPlayer playerToRelease = p;
+			p = null;
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						playerToRelease.stop();
+						playerToRelease.release();
+					} catch (IllegalStateException e) {
+						ToolsTracker.error("MusicService.onDestroy", e, musicFilePath);
+					}
+				}
+			}).start();
 		}
 	}
 	

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.*;
 import android.graphics.Bitmap.Config;
-import android.graphics.Region.Op;
 import android.media.AudioManager;
 import android.os.*;
 import android.util.Log;
@@ -94,8 +93,10 @@ public class GUIGame extends Activity {
 		
 		@Override
 		public void setClip_screen(Canvas canvas) {
-			//canvas.clipRect(0, 0, canvas.getWidth(), canvas.getHeight(), Op.REPLACE);
-			canvas.clipRect(0, 0, Tools.screen_w, Tools.screen_h, Op.REPLACE);
+			// Region.Op.REPLACE is banned on API 26+; expanding the clip back to
+			// full screen is handled by canvas.restore() in the caller. This
+			// INTERSECT clip is a no-op safeguard (only reached via the OSU_MOD path).
+			canvas.clipRect(0, 0, Tools.screen_w, Tools.screen_h);
 		}
 		@Override
 		public void setClip_arrowSpace(Canvas canvas) {
@@ -129,7 +130,10 @@ public class GUIGame extends Activity {
 				ymax = Tools.screen_h;
 				break;
 			}
-			canvas.clipRect(0, ymin, Tools.screen_w, ymax, Op.REPLACE);
+			// Narrow the clip to the arrow region. Restoring/expanding it back
+			// out is done via canvas.restore() in GUIHandlerTap.drawFallingObjects
+			// (Region.Op.REPLACE is no longer permitted on API 26+).
+			canvas.clipRect(0, ymin, Tools.screen_w, ymax);
 		}
 	};
 	

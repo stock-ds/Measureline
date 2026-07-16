@@ -28,7 +28,13 @@ public class GUIVibrator {
 			holdsCount = 0;
 			if (vibrateTouchSense) {
 				v = null;
-				vm = new Launcher(Tools.c);
+				try {
+					vm = new Launcher(Tools.c);
+				} catch (Throwable t) {
+					android.util.Log.e("GUIVibrator", "Failed to load TouchSense Immersion library: " + t.toString());
+					vm = null;
+					v = (Vibrator)Tools.c.getSystemService(Context.VIBRATOR_SERVICE);
+				}
 			} else {
 				v = (Vibrator)Tools.c.getSystemService(Context.VIBRATOR_SERVICE);
 				vm = null;
