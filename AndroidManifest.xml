@@ -6,12 +6,15 @@
 	android:versionName="@string/App_version"
 	android:installLocation="auto">
 	<uses-sdk
-		android:minSdkVersion="5"
-		android:targetSdkVersion="19"
+		android:minSdkVersion="21"
+		android:targetSdkVersion="34"
 	/>
 	<uses-permission android:name="android.permission.INTERNET"/> <!-- Localytics -->
 	<uses-permission android:name="android.permission.VIBRATE"/> <!-- Game -->
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> <!-- Updates -->
+	<!-- All files access: lets songs live in a public, file-manager-visible folder
+	     (/storage/emulated/0/Beats) on Android 11+. Requested at runtime. -->
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 	<application
 		android:enabled="true"
 		android:allowBackup="true"
@@ -20,7 +23,8 @@
 		android:label="@string/App_name"
 		android:description="@string/App_description">
 		<activity
-			android:name=".MenuHome">
+			android:name=".MenuHome"
+			android:exported="true">
 			<intent-filter>
 				<action	android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -28,7 +32,8 @@
 		</activity>
 		<activity
 			android:name=".ToolsDownloader"
-			android:configChanges="orientation|keyboardHidden|screenSize">
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:exported="true">
 			<!--
 				Most websites report .smzip files as of MIME type application/octet-stream
 				so the only real way to handle them would be to directly download the files
@@ -47,7 +52,8 @@
 		</activity>
 		<activity
 			android:name=".ToolsUnzipperActivity"
-			android:configChanges="orientation|keyboardHidden|screenSize">
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<action android:name="android.intent.action.VIEW"/>
@@ -107,7 +113,8 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name=".MenuCredits">
+			android:name=".MenuCredits"
+			android:exported="true">
 			<intent-filter>
 				<category android:name="android.intent.category.DEFAULT" />
 				<action android:name=".MenuCredits" />

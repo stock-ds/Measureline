@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application' version '8.2.0'
+}
+
+android {
+    namespace 'com.beatsportable.beats'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.beatsportable.beats'
+        minSdkVersion 21
+        targetSdkVersion 34
+        versionCode 21
+        versionName "1.7.5b"
+    }
+
+    useLibrary 'org.apache.http.legacy'
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            // Intentionally do NOT package libs/ as jniLibs: the only native lib is
+            // Immersion TouchSense (libImmEmulatorJ.so), which ships only for the
+            // deprecated 'armeabi' and 'x86' ABIs. Bundling it makes the APK declare
+            // native-code and become ABI-specific, so it fails to install on modern
+            // arm64-only devices ("app not compatible"). The haptics feature is
+            // optional and GUIVibrator already falls back to the system Vibrator when
+            // the library is absent (catch Throwable around the Launcher init).
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation files('libs/UHL.jar')
+}
