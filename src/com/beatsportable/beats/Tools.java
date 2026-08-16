@@ -251,6 +251,33 @@ public class Tools {
 	public static boolean getBooleanSetting(int key, int defValue) {
 		return settings.getString(res.getString(key), res.getString(defValue)).equals("1");
 	}
+
+	public static float getFloatSetting(int key, int defValue, float min, float max) {
+		String raw = getSetting(key, defValue);
+		if (raw == null) raw = "";
+		raw = raw.trim().replace(',', '.');
+		try {
+			float v = Float.parseFloat(raw);
+			if (v < min) return min;
+			if (v > max) return max;
+			return v;
+		} catch (Exception e) {
+			try {
+				return Float.parseFloat(res.getString(defValue));
+			} catch (Exception e2) {
+				return min;
+			}
+		}
+	}
+
+	public static float getScrollSpeed() {
+		return getFloatSetting(R.string.speedMultiplier, R.string.speedMultiplierDefault, 0.25f, 20f);
+	}
+
+	public static float getSongSpeed() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return 1f;
+		return getFloatSetting(R.string.songSpeed, R.string.songSpeedDefault, 0.25f, 3f);
+	}
 	
 	public static void putSetting(int key, String value) {
 		editor.putString(res.getString(key), value);

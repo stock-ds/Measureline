@@ -84,7 +84,11 @@ public class GUIFallingHold extends GUIFallingObject {
 		// Narrow the clip to the hold body, then restore to the arrow-space clip.
 		// save()/restore() replaces the old Region.Op.REPLACE reset (banned on API 26+).
 		canvas.save();
-		canvas.clipPath(path, Op.INTERSECT);
+		try {
+			canvas.clipPath(path, Op.INTERSECT);
+		} catch (UnsupportedOperationException e) {
+			canvas.clipRect(rect_left, hold_rect_top, rect_right, hold_rect_bottom);
+		}
 
 		//need to swap comparison direction based on motion direction, hence xor
 		for (int y = hold_draw_start; (y <= hold_draw_end) ^ fallingDown; y += hold_draw_add) {

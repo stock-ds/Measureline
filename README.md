@@ -1,5 +1,6 @@
-Beats, Advanced Rhythm Game
+Measureline
 =====
+A StepMania-compatible rhythm game for Android, forked from Beats.
 
 Popular, open source rhythm game for Android.
 This is the latest snapshot of the SVN code base (r18), migrated to GitHub.
@@ -14,18 +15,20 @@ All source code is available under Modified BSD license.
 
 ## About this fork
 
-This fork ([stock-ds/Beats](https://github.com/stock-ds/Beats)) is an **AI-assisted version bump** to get Beats installing and running on Android systems as of 2026. The original 2013-era build (targeting Android 4.4 and using tooling that no longer exists) can't be installed on current devices at all. This isn't a feature update or a rewrite — it's the minimum needed to keep the app runnable:
+This fork ([stock-ds/Beats](https://github.com/stock-ds/Beats)) is now **Measureline**: a StepMania-compatible continuation of Beats for current Android, without adopting RevoluTap's UI rewrite. The original 2013-era Beats build can't be installed on current devices at all.
 
 - Migrated the build from Eclipse ADT/Ant to Gradle, targeting Android 14 (API 34)
-- Fixed a crash-on-launch caused by a `Canvas` clipping API removed in modern Android
-- Fixed a multi-second UI freeze when exiting a song (blocking `MediaPlayer` teardown on the main thread)
-- Dropped a bundled native library that only shipped for obsolete CPU architectures, which was blocking installs on current (arm64) phones
-- Moved the Songs/Backgrounds/NoteSkins folders to public storage (`/storage/emulated/0/Beats`) so they're visible in a normal file manager, instead of a hidden per-app folder
-- Updated the in-app "Download Songs" link, which pointed to a now-defunct site
+- Play Store identity: `com.stockds.measureline` (Java packages remain `com.beatsportable.beats`)
+- Song speed multiplier and free-form scroll/song speed numbers
+- Song-select banners, note counts, NPS, and best score
+- Hardware SurfaceView so gameplay can match display refresh
+- Multitouch drag updates the held column
+- On-screen BACK control (needed on emulators without a Back key)
+- Songs/Backgrounds/NoteSkins live in public storage (`/storage/emulated/0/Beats`)
 
-None of this changes gameplay or features. If you just want to play, grab the APK from [Releases](../../releases) instead of building it yourself.
+If you just want to play, grab the APK from [Releases](../../releases) instead of building it yourself.
 
-In respect of the original author's note above: this exists only to keep an otherwise-abandoned, install-blocked app usable on modern phones. The upstream repository ([Keripo/Beats](https://github.com/Keripo/Beats)) remains the canonical source for reference.
+In respect of the original author's note above: the upstream repository ([Keripo/Beats](https://github.com/Keripo/Beats)) remains the canonical source for reference.
 
 ## Building locally
 
@@ -44,11 +47,27 @@ Steps:
    ./gradlew assembleDebug
    ```
    (use `gradlew.bat` on Windows)
-4. The APK is written to `build/outputs/apk/debug/Beats-debug.apk`. Install it with:
+4. The debug APK is written to `build/outputs/apk/debug/Measureline-debug.apk`. Install it with:
    ```
-   adb install -r build/outputs/apk/debug/Beats-debug.apk
+   adb install -r build/outputs/apk/debug/Measureline-debug.apk
    ```
 
 Windows users can instead run [`setup_sdk.ps1`](setup_sdk.ps1), which downloads the Android command-line tools, Gradle, and the required SDK packages automatically (edit the paths at the top of the script first if you don't want the defaults under `c:\_dev`).
 
-This produces a debug-signed APK, which installs and plays fine but isn't eligible for Play Store distribution (that would need a release signing key, which isn't set up in this fork).
+## Play Store / release builds
+
+Release builds use a local upload keystore. Secrets are **not** in git.
+
+1. Copy [`keystore.properties.example`](keystore.properties.example) to `keystore.properties`.
+2. Generate an upload key (once) and keep a backup of the `.jks` **and** passwords:
+   ```
+   keytool -genkeypair -v -keystore keystore/measureline-upload.jks -alias measureline -keyalg RSA -keysize 2048 -validity 10000
+   ```
+3. Fill `storeFile`, `storePassword`, `keyAlias`, and `keyPassword` in `keystore.properties`.
+4. Build the signed release APK:
+   ```
+   ./gradlew assembleRelease
+   ```
+   Output: `build/outputs/apk/release/Measureline-release.apk`.
+
+Create the Play Console app with application id `com.stockds.measureline`, then upload that APK (or an AAB later) as the first release. Google Play App Signing will accept this as the upload key.

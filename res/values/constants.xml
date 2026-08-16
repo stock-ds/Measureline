@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- App -->
-	<string name="App_name">"Beats"</string>
-	<string name="Titlebar">"Beats - "</string>
+	<string name="App_name">"Measureline"</string>
+	<string name="Titlebar">"Measureline - "</string>
 	<string name="Localytics_key">"7e17c9425cf4aec59bccf6f-8039babc-3418-11e0-c2c6-007af5bd88a0"</string>
 	
 	<!-- URLs -->
@@ -51,6 +51,8 @@
 	<string name="difficultyLevelDefault">"2"</string>
 	<string name="speedMultiplier">"speedMultiplier"</string>
 	<string name="speedMultiplierDefault">"2"</string>
+	<string name="songSpeed">"songSpeed"</string>
+	<string name="songSpeedDefault">"1"</string>
 	<string name="autoStart">"autoStart"</string>
 	<string name="autoStartDefault">"1"</string>
 	<string name="noteAppearance">"noteAppearance"</string>

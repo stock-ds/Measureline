@@ -7,7 +7,7 @@
   <string name="notesCategoryTitle">"Notes"</string>
   <string name="displaySettingsCategoryTitle">"Display Settings"</string>
   <string name="hardwareAccelerationTitle">Hardware Acceleration</string>
-  <string name="hardwareAccelerationDesc">May improve FPS</string>
+  <string name="hardwareAccelerationDesc">Use a hardware SurfaceView so the game can match the display refresh rate</string>
   <string name="gameScreenTitle">"Game Screen"</string>
   <string name="gameScreenDesc">"Screen during gameplay"</string>
   <string name="interfaceCategoryTitle">"Game Interface"</string>
@@ -45,8 +45,10 @@
   <string name="creditsDesc">"A bit about the devs and all others to thank"</string>
   <string name="difficultyLevelTitle">"Difficulty Level"</string>
   <string name="difficultyLevelDesc">"Default difficulty level of song"</string>
-  <string name="speedMultiplierTitle">"Speed"</string>
-  <string name="speedMultiplierDesc">"Falling speed of notes"</string>
+  <string name="speedMultiplierTitle">"Scroll Speed"</string>
+  <string name="speedMultiplierDesc">"Falling speed of notes. Enter any number (e.g. 2.35)."</string>
+  <string name="songSpeedTitle">"Song Speed"</string>
+  <string name="songSpeedDesc">"Music and note timing multiplier. Enter any number (e.g. 0.85 or 1.1)."</string>
   <string name="gameModeTitle">"Game Mode"</string>
   <string name="gameModeDesc">"Mode of displaying notes"</string>
   <string name="noteAppearanceTitle">"Appearance"</string>

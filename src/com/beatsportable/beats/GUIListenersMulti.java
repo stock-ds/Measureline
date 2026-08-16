@@ -21,31 +21,55 @@ public class GUIListenersMulti extends GUIListeners {
 				if (autoPlay || h.done || h.score.gameOver) return false;
 				int pitch;
 				
-				// Normal multi-touch
-				int actionmask = e.getAction() & MotionEvent.ACTION_MASK;
-				@SuppressWarnings("deprecation")
-				int actionpid = e.getAction() >> MotionEvent.ACTION_POINTER_ID_SHIFT;
-				switch (actionmask) {
-				case MotionEvent.ACTION_DOWN:
-					actionpid = 0;
-					//fallthru
-				case MotionEvent.ACTION_POINTER_DOWN:
-					pitch = h.onTouch_Down(e.getX(actionpid), e.getY(actionpid));
-					if (pitch > 0) finger2pitch.put(actionpid, pitch);
-					return pitch > 0;
-				case MotionEvent.ACTION_POINTER_UP:
-					h.onTouch_Up(e.getX(actionpid), e.getY(actionpid));
-					if (finger2pitch.containsKey(actionpid)) {
-						return h.onTouch_Up(finger2pitch.get(actionpid));
+			// Use pointer IDs (stable across the gesture), not pointer indexes.
+			// The old code stored ACTION_POINTER_ID_SHIFT as if it were an id, then
+			// never handled ACTION_MOVE, so a dragged finger kept the original column.
+			int actionmask = e.getAction() & MotionEvent.ACTION_MASK;
+			int pointerIndex = (e.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+					>> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+			switch (actionmask) {
+			case MotionEvent.ACTION_DOWN:
+				pointerIndex = 0;
+				//fallthru
+			case MotionEvent.ACTION_POINTER_DOWN: {
+				int pointerId = e.getPointerId(pointerIndex);
+				pitch = h.onTouch_Down(e.getX(pointerIndex), e.getY(pointerIndex));
+				if (pitch > 0) finger2pitch.put(pointerId, pitch);
+				return pitch > 0;
+			}
+			case MotionEvent.ACTION_MOVE: {
+				boolean handled = false;
+				for (int i = 0; i < e.getPointerCount(); i++) {
+					int pointerId = e.getPointerId(i);
+					int previous = finger2pitch.containsKey(pointerId) ? finger2pitch.get(pointerId) : 0;
+					int next = h.onTouch_Move(e.getX(i), e.getY(i), previous);
+					if (next > 0) {
+						finger2pitch.put(pointerId, next);
 					} else {
-						return h.onTouch_Up(0xF);
+						finger2pitch.remove(pointerId);
 					}
-				case MotionEvent.ACTION_UP:
-					h.onTouch_Up(e.getX(actionpid), e.getY(actionpid));
-					return h.onTouch_Up(0xF);
-				default:
-					return false;
+					handled |= (next != previous);
 				}
+				return handled;
+			}
+			case MotionEvent.ACTION_POINTER_UP: {
+				int pointerId = e.getPointerId(pointerIndex);
+				h.onTouch_Up(e.getX(pointerIndex), e.getY(pointerIndex));
+				if (finger2pitch.containsKey(pointerId)) {
+					int released = finger2pitch.remove(pointerId);
+					return h.onTouch_Up(released);
+				} else {
+					return h.onTouch_Up(0xF);
+				}
+			}
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_CANCEL:
+				h.onTouch_Up(e.getX(pointerIndex), e.getY(pointerIndex));
+				finger2pitch.clear();
+				return h.onTouch_Up(0xF);
+			default:
+				return false;
+			}
 			}
 		};
 	}	

@@ -33,6 +33,7 @@ public class GUIGame extends Activity {
 	private int backgroundBrightness;
 	private int frame_millis;
 	private double speed_multiplier;
+	private float song_speed;
 	private int noteAppearance;
 	private int randomize;
 	private boolean osu;
@@ -159,11 +160,10 @@ public class GUIGame extends Activity {
 				Tools.getBooleanSetting(R.string.backgroundFiltering, R.string.backgroundFilteringDefault);
 		backgroundBrightness = Integer.valueOf(
 				Tools.getSetting(R.string.backgroundBrightness, R.string.backgroundBrightnessDefault));
-		//frame_millis = Integer.valueOf(
-		//		Tools.getSetting(R.string.fps, R.string.fpsDefault));
+		// Simulation step stays ~60Hz; drawing is uncapped to the display refresh.
 		frame_millis = 17; // 60 FPS = 1000/17
-		speed_multiplier = Double.valueOf(
-				Tools.getSetting(R.string.speedMultiplier, R.string.speedMultiplierDefault));
+		speed_multiplier = Tools.getScrollSpeed();
+		song_speed = Tools.getSongSpeed();
 		noteAppearance = Integer.valueOf(
 				Tools.getSetting(R.string.noteAppearance, R.string.noteAppearanceDefault));
 		randomize = Integer.parseInt(
@@ -198,34 +198,15 @@ public class GUIGame extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		Tools.setScreenDimensions();
 		
-		// Setup view
+		// Setup view. Default is a hardware-accelerated SurfaceView so we can
+		// hit the display refresh rate (the old software SurfaceView + 60Hz
+		// sim cap is why a 120Hz device often sat under 90 FPS).
 		int hardwareAccelerate = Integer.valueOf(
 				Tools.getSetting(R.string.hardwareAccelerate, R.string.hardwareAccelerateDefault));
-		if (hardwareAccelerate < 0) {
-			// Test for hardware acceleration
-			View testView = new View(this);
-			Canvas testCanvas = new Canvas();
-			setContentView(testView);
-			// Hardware acceleration support was added in Honeycomb (11)
-			if (Build.VERSION.SDK_INT >= 11 && testView.isHardwareAccelerated() && testCanvas.isHardwareAccelerated()) {
-				try {
-					// Check if clipPath is supported
-					testCanvas.clipPath(null, null);
-					
-					// Looks like it's supported, enable hardware acceleration
-					hardwareAccelerate = 1;
-				} catch (UnsupportedOperationException e) {
-					hardwareAccelerate = 0;
-				}
-			} else {
-				hardwareAccelerate = 0;
-			}
-		}
-		if (hardwareAccelerate == 1) {
-			mView = new RefreshHandlerView(this);
+		if (hardwareAccelerate == 0) {
+			mView = new SurfaceHolderView(this, false);
 		} else {
-			// SurfaceView is not hardware accelerated but faster than normal Views
-			mView = new SurfaceHolderView(this);
+			mView = new SurfaceHolderView(this, true);
 		}
 		setContentView(mView.getView());
 		
@@ -242,7 +223,18 @@ public class GUIGame extends Activity {
 		} else {
 			listeners = new GUIListenersMulti(h);
 		}
-		mView.getView().setOnTouchListener(listeners.getOnTouchListener());
+		final View.OnTouchListener playListener = listeners.getOnTouchListener();
+		mView.getView().setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, android.view.MotionEvent e) {
+				if (e.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+					if (mView.getGameView().hitOverlayBack(e.getX(), e.getY())) {
+						leaveGame();
+						return true;
+					}
+				}
+				return playListener.onTouch(v, e);
+			}
+		});
 		
 		this.dp = MenuStartGame.dp;
 		h.loadSongData(dp);
@@ -302,10 +294,12 @@ public class GUIGame extends Activity {
 		private GameView _view;
 		private boolean _run = false;
 		private boolean _paused = false;
+		private boolean _hardwareCanvas;
 	 
-		public SurfaceHolderThread(SurfaceHolder surfaceHolder, GameView view) {
+		public SurfaceHolderThread(SurfaceHolder surfaceHolder, GameView view, boolean hardwareCanvas) {
 			_surfaceHolder = surfaceHolder;
 			_view = view;
+			_hardwareCanvas = hardwareCanvas;
 		}
 		
 		public void setPaused(boolean paused) {
@@ -323,7 +317,15 @@ public class GUIGame extends Activity {
 				c = null;
 				try {
 					synchronized (_surfaceHolder) {
-						c = _surfaceHolder.lockCanvas(null);
+						if (_hardwareCanvas && Build.VERSION.SDK_INT >= 26) {
+							try {
+								c = _surfaceHolder.lockHardwareCanvas();
+							} catch (Exception e) {
+								c = _surfaceHolder.lockCanvas(null);
+							}
+						} else {
+							c = _surfaceHolder.lockCanvas(null);
+						}
 						if (_view != null && c != null) {
 							if (!_paused) {
 								_view.update();
@@ -379,6 +381,9 @@ public class GUIGame extends Activity {
 		private Paint titlebarPaint;
 		
 		private GUIScoreDisplay scoreDisplay;
+		private Rect overlayBackRect;
+		private Paint overlayBackPaint;
+		private GUITextPaint overlayBackLabel;
 		
 		public void clearBitmaps() {
 			if (bgImage != null) {
@@ -525,9 +530,10 @@ public class GUIGame extends Activity {
 			// BPM & Speed
 			rightSettingsTop =
 				String.format(
-						"%s BPM, %3.2fx",
+						"%s BPM, %3.2fx / %3.2fx",
 						dp.df.getBPMRange(dp.notesDataIndex),
-						speed_multiplier
+						speed_multiplier,
+						song_speed
 						);
 			
 			// Title
@@ -550,6 +556,10 @@ public class GUIGame extends Activity {
 			
 			//Endgame score display
 			scoreDisplay = new GUIScoreDisplay(h.score);
+			overlayBackRect = new Rect(Tools.screen_w - Tools.scale(78), 0, Tools.screen_w, margin + height);
+			overlayBackPaint = new Paint();
+			overlayBackPaint.setARGB(Tools.MAX_OPA, 255, 190, 0);
+			overlayBackLabel = new GUITextPaint(Tools.scale(13)).alignCenter().bold().ARGB(Tools.MAX_OPA, 0, 0, 0);
 			
 			// Tracking
 			HashMap<String,String> attributes = new HashMap<String,String>();
@@ -608,6 +618,9 @@ public class GUIGame extends Activity {
 			// Title
 			canvas.drawRect(0, 0, Tools.screen_w, margin + height, titlebarPaint);
 			titlePaint.draw(canvas, title, margin, height);
+			canvas.drawRect(overlayBackRect, overlayBackPaint);
+			overlayBackLabel.draw(canvas, Tools.getString(R.string.GUIGame_back_button),
+					overlayBackRect.centerX(), height);
 			
 			// Health
 			double health = h.score.getHealthPercent();
@@ -677,6 +690,13 @@ public class GUIGame extends Activity {
 			}
 			
 		}
+
+		public boolean hitOverlayBack(float x, float y) {
+			if (overlayBackRect != null && overlayBackRect.contains((int)x, (int)y)) {
+				return true;
+			}
+			return (h != null && (h.done || h.score.gameOver) && scoreDisplay != null && scoreDisplay.hitBackButton(x, y));
+		}
 		
 		// Timing, public for outside access
 		long pauseTime = 0;
@@ -706,34 +726,42 @@ public class GUIGame extends Activity {
 				}
 			}
 		}
+		private int mediaTimeFromWall() {
+			long elapsed = SystemClock.elapsedRealtime() - mStartTime;
+			return (int)(elapsed * song_speed + musicStartTime);
+		}
 		public void update() {
-			// Initial "Ready" countdown"
-			if (countDown < 0) {
-				currentTime = countDown * frame_millis + manualOffset;
-				nextFrame();
-				countDown++;
-			// Countdown done, start the music!
-			} else if (countDown == 0) {
-				mp.startPlaying();
-				travelOffset = h.travel_offset_ms();
-				musicCurrentPosition = mp.getCurrentPosition();
-				musicStartTime = musicCurrentPosition + manualOffset;
-				mStartTime = SystemClock.elapsedRealtime();
-				countDown++; // Countdown positive, no more countdown!
-				currentTime = (int)(SystemClock.elapsedRealtime() - mStartTime + musicStartTime);
-			// Game is running
-			} else {				
-				currentTime = (int)(SystemClock.elapsedRealtime() - mStartTime + musicStartTime);
-				int desiredFrameNo = (int)((currentTime + travelOffset)/frame_millis);
-				
-				// Sync during the first x ms
-				// Some re-syncing issue with OGGs due to seekTo, so syncAdjust slowly
-				if (syncCounter * frame_millis < syncDuration) {
-					if (mp.isPlaying()) {
-						if (syncCounter % 2 == 0) {
-							musicCurrentPosition = mp.getCurrentPosition();
-							syncAdjust = (currentTime - (musicCurrentPosition + manualOffset)) / 8;
+		// Initial "Ready" countdown"
+		if (countDown < 0) {
+			currentTime = countDown * frame_millis + manualOffset;
+			nextFrame();
+			countDown++;
+		// Countdown done, start the music!
+		} else if (countDown == 0) {
+			mp.startPlaying();
+			travelOffset = h.travel_offset_ms();
+			musicCurrentPosition = mp.getCurrentPosition();
+			musicStartTime = musicCurrentPosition + manualOffset;
+			mStartTime = SystemClock.elapsedRealtime();
+			countDown++; // Countdown positive, no more countdown!
+			currentTime = mediaTimeFromWall();
+		// Game is running
+		} else {				
+			currentTime = mediaTimeFromWall();
+			int desiredFrameNo = (int)((currentTime + travelOffset)/frame_millis);
+			
+			// Sync during the first x ms
+			// Some re-syncing issue with OGGs due to seekTo, so syncAdjust slowly
+			if (syncCounter * frame_millis < syncDuration) {
+				if (mp.isPlaying()) {
+					if (syncCounter % 2 == 0) {
+						musicCurrentPosition = mp.getCurrentPosition();
+						syncAdjust = (currentTime - (musicCurrentPosition + manualOffset)) / 8;
+						if (song_speed > 0.01f) {
+							mStartTime += (long)(syncAdjust / song_speed);
+						} else {
 							mStartTime += syncAdjust;
+						}
 							if (debugTime) {
 								h.setMessage(
 										"m" + musicCurrentPosition + 
@@ -829,12 +857,14 @@ public class GUIGame extends Activity {
 	private class SurfaceHolderView extends SurfaceView implements SurfaceHolder.Callback, GameViewHandler {
 		public SurfaceHolderThread _thread;
 		private GameView mView;
+		private boolean hardwareCanvas;
 		
-		public SurfaceHolderView(Context context) {
+		public SurfaceHolderView(Context context, boolean hardwareCanvas) {
 			super(context);
+			this.hardwareCanvas = hardwareCanvas;
 			mView = new GameView();
 			getHolder().addCallback(this);
-			_thread = new SurfaceHolderThread(this.getHolder(), mView);
+			_thread = new SurfaceHolderThread(this.getHolder(), mView, hardwareCanvas);
 		}
 		
 		public View getView() {
@@ -871,7 +901,7 @@ public class GUIGame extends Activity {
 		}
 		
 		public void surfaceCreated(SurfaceHolder holder) {
-			_thread = new SurfaceHolderThread(holder, mView);
+			_thread = new SurfaceHolderThread(holder, mView, hardwareCanvas);
 			_thread.setRunning(true);
 			if (!_thread.isAlive()) {
 				_thread.start();
@@ -932,6 +962,10 @@ public class GUIGame extends Activity {
 	}
 	private void exitGame() {
 		stopGame(Tools.getString(R.string.GUIGame_exiting), 0, 64, 255, false, true); // royal blue
+	}
+	private void leaveGame() {
+		exitGame();
+		finish();
 	}
 	private void resumeGame() {
 		resumeGame(true);
@@ -996,8 +1030,9 @@ public class GUIGame extends Activity {
 	@Override
 	//TODO somehow move these to GUIListeners. This may require passing this GUIGame to the listener as a a param.
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-			exitGame(); // this is needed cause something things go screwy when autoPlay is on
+		if ((keyCode == KeyEvent.KEYCODE_BACK) || keyCode == KeyEvent.KEYCODE_ESCAPE) {
+			leaveGame();
+			return true;
 		}
 		int pitch = GUIListeners.keyCode2Direction(keyCode);
 

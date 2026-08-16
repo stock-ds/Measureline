@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="App_description">"Beats is a music rhythm game where you tap to the beat of the music of installed song packs."</string>
+  <string name="App_description">"Measureline is a StepMania-compatible rhythm game where you tap to the beat of installed song packs."</string>
   <string name="Menu_start">" start "</string>
   <string name="Menu_select_song">" select song "</string>
   <string name="Menu_download_songs">" download songs "</string>
@@ -34,7 +34,7 @@
   <string name="Accuracy_miss">"Miss"</string>
   <string name="Accuracy_ok">"OK"</string>
   <string name="Accuracy_no_good">"No Good"</string>
-  <string name="MenuHome_titlebar">"Beats - Advanced Rhythm Game"</string>
+  <string name="MenuHome_titlebar">"Measureline - StepMania on Android"</string>
   <string name="MenuHome_legacy_warning">"Your phone is currently running Android 1.5 (Cupcake) or 1.6 (Donut), which do not fully support multi-touch capabilities. It is highly recommended you upgrade to 2.1 (Eclair) or higher. Beats can still run with single-touch but many stepfiles will be very difficult to play."</string>
   <string name="MenuHome_background_sync_warning">"Your phone currently has \"Background data\" enabled. Turning off \"Background data\" helps prevent other apps from causing Beats gameplay to lag. Alternatively, you can increase \"Application Priority\" in \"Advanced Settings\".\n\nDo you wish to change your \"Background data\" setting\? (Recommended to reduce lag)"</string>
   <string name="MenuHome_background_sync_undo">"You previously disabled your \"Background data\" setting. Would you like to update the setting now\?"</string>
@@ -42,7 +42,7 @@
   <string name="MenuHome_background_image_load_fail">"Unable to load background image - out of memory!"</string>
   <string name="MenuHome_new_user_notes_title">"New User Notes"</string>
   <string name="MenuHome_release_notes_title">"Beats Release Notes"</string>
-  <string name="MenuSettings_title">"Beats - Settings"</string>
+  <string name="MenuSettings_title">"Measureline - Settings"</string>
   <string name="DataParser_unsupported">"Unsupported stepfile: only .sm, .dwi and .osu files are supported currently."</string>
   <string name="MenuStartGame_loading_title">"Loading: "</string>
   <string name="MenuStartGame_loading_progress_bar">"Loading stepfile:\n"</string>
@@ -98,6 +98,9 @@
   <string name="ToolsSampleInstaller_installing">"Extracting sample stepfile pack, please wait..."</string>
   <string name="ToolsSampleInstaller_graphics">"Extracting default graphics, please wait..."</string>
   <string name="MenuFilechooser_list_error">"Error: Unable to list files in directory:\n"</string>
+  <string name="MenuFilechooser_stats">"%1$d notes · %2$.1f nps · Lv.%3$d"</string>
+  <string name="MenuFilechooser_stats_score">"%1$d notes · %2$.1f nps · Lv.%3$d · Best %4$d"</string>
+  <string name="MenuFilechooser_pack_songs">"%1$d songs"</string>
   <string name="MenuFilechooser_url_error">"Error: Invalid internet shortcut, unable to determine linked url."</string>
   <string name="MenuFilechooser_up_dir">".. [up one directory]"</string>
   <string name="MenuFilechooser_selected_stepfile">"Selected stepfile file:\n"</string>
@@ -141,4 +144,5 @@
   <string name="GUIGame_exiting">"EXITING"</string>
   <string name="GUIGame_paused">"PAUSED"</string>
   <string name="GUIGame_resumed">"RESUMED"</string>
+  <string name="GUIGame_back_button">"BACK"</string>
 </resources>

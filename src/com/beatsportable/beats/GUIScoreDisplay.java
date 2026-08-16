@@ -16,6 +16,9 @@ public class GUIScoreDisplay {
 	private String gameOverText;
 	private String back1, back2;
 	private GUIScore score;
+	private Rect backButton;
+	private Paint backButtonPaint;
+	private GUITextPaint backButtonLabel;
 	
 	public GUIScoreDisplay(GUIScore score) {
 		this.score = score;
@@ -27,6 +30,18 @@ public class GUIScoreDisplay {
 		backBoxPaint = new Paint();
 		backBoxPaint.setStyle(Paint.Style.FILL);
 		backPaint = new GUITextPaint(Tools.scale(22)).alignCenter().serif().italic().ARGB(Tools.MAX_OPA, 255, 255, 255);
+		backButtonPaint = new Paint();
+		backButtonPaint.setStyle(Paint.Style.FILL);
+		backButtonLabel = new GUITextPaint(Tools.scale(20)).alignCenter().bold().ARGB(Tools.MAX_OPA, 0, 0, 0);
+		int bw = Tools.scale(180);
+		int bh = Tools.scale(44);
+		int bx = (Tools.screen_w - bw) / 2;
+		int by = Tools.screen_h - Tools.scale(56);
+		backButton = new Rect(bx, by, bx + bw, by + bh);
+	}
+
+	public boolean hitBackButton(float x, float y) {
+		return backButton != null && backButton.contains((int)x, (int)y);
 	}
 	
 	public void updateStatus(boolean isMaxCombo) {
@@ -103,8 +118,14 @@ public class GUIScoreDisplay {
 		
 		backPaint.ARGB(opa, 255,255,255);
 		
-		backPaint.draw(canvas, back1, Tools.screen_w/2, Tools.screen_h - Tools.scale(100));
-		backPaint.draw(canvas, back2, Tools.screen_w/2, Tools.screen_h - Tools.scale(75));
+		backPaint.draw(canvas, back1, Tools.screen_w/2, Tools.screen_h - Tools.scale(118));
+		backPaint.draw(canvas, back2, Tools.screen_w/2, Tools.screen_h - Tools.scale(96));
+
+		backButtonPaint.setARGB(opa, 255, 190, 0);
+		canvas.drawRect(backButton, backButtonPaint);
+		backButtonLabel.ARGB(opa, 0, 0, 0);
+		backButtonLabel.draw(canvas, Tools.getString(R.string.GUIGame_back_button),
+				backButton.centerX(), backButton.centerY() + Tools.scale(7));
 	}
 	
 }

@@ -2,7 +2,7 @@
 <resources>
 
 <!-- Placed here for easy updating -->
-<string name="App_version">"1.7.5b-android2026"</string>
+<string name="App_version">"2.0.0"</string>
 
 <!-- MenuHome -->
 <string name="MenuHome_new_user_notes">

@@ -31,8 +31,7 @@ public class GUIHandler { //TODO is there any reason this isn't abstract?
 	}
 	
 	public GUIHandler() {
-		fallpix_per_ms = Double.valueOf(
-				Tools.getSetting(R.string.speedMultiplier, R.string.speedMultiplierDefault)) / 3;
+		fallpix_per_ms = Tools.getScrollSpeed() / 3.0;
 		if (Tools.gameMode == Tools.STANDARD) fallpix_per_ms = -fallpix_per_ms; // scroll up
 		tapboxYOffset = Integer.valueOf(
 				Tools.getSetting(R.string.tapboxYOffset, R.string.tapboxYOffsetDefault));
@@ -132,6 +131,11 @@ public class GUIHandler { //TODO is there any reason this isn't abstract?
 	// Called by finger touches
 	public int onTouch_Down(float x, float y) {
 		return -1;
+	}
+
+	// Called when a finger moves. Returns the new pitch bitmask, or the previous one if unchanged.
+	public int onTouch_Move(float x, float y, int previousPitches) {
+		return previousPitches;
 	}
 	
 	public int onTouch_Up(float x, float y) {

@@ -1,25 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:gravity="center_vertical"
+	android:minHeight="48dip"
+	android:paddingLeft="4dip"
+	android:paddingRight="8dip"
+	android:paddingTop="4dip"
+	android:paddingBottom="4dip"
 	>
 	<ImageView
-		android:id="@+id/iconview"   
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:maxHeight="10dip"
+		android:id="@+id/iconview"
+		android:layout_width="72dip"
+		android:layout_height="28dip"
+		android:scaleType="centerCrop"
+		android:adjustViewBounds="true"
 	/>
-	<TextView
-		android:id="@+id/textview"
-		android:layout_width="wrap_content" 
+	<LinearLayout
+		android:layout_width="0dip"
 		android:layout_height="wrap_content"
-		android:singleLine="true"
-		android:textStyle="bold"
-		android:textSize="16sp"
-		android:layout_marginTop="5dip"
-		android:layout_marginBottom="5dip"
+		android:layout_weight="1"
 		android:layout_marginLeft="10dip"
-		android:text="@+id/textview"
-	/>
+		android:orientation="vertical"
+		>
+		<TextView
+			android:id="@+id/textview"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:singleLine="true"
+			android:textStyle="bold"
+			android:textSize="16sp"
+		/>
+		<TextView
+			android:id="@+id/statsview"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:singleLine="true"
+			android:textSize="12sp"
+			android:visibility="gone"
+		/>
+	</LinearLayout>
 </LinearLayout>

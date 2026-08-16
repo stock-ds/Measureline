@@ -25,8 +25,7 @@ public class GUIHandlerOsu extends GUIHandler {
 		debugTapboxPaint.setARGB(32, 0, 0, 0);
 		fadingobjects = new LinkedList<GUIFallingOsuFading>();
 		GUIFallingOsuBeat.delay = (int) (
-			GUIFallingOsuBeat.DELAY_DEFAULT /
-			Double.valueOf(Tools.getSetting(R.string.speedMultiplier, R.string.speedMultiplierDefault))
+			GUIFallingOsuBeat.DELAY_DEFAULT / Tools.getScrollSpeed()
 			);
 		
 		//setupXY(); // Call in GUIGame
@@ -49,7 +48,7 @@ public class GUIHandlerOsu extends GUIHandler {
 		}
 		GUIFallingOsuBeat.NUM_TEXT_HEIGHT = Tools.scale(30);
 		GUIFallingOsuBeat.RING_STROKE_WIDTH = Tools.scale(3);
-		GUIFallingOsuSliderEnd.BLINK_SPEED = Double.valueOf(Tools.getSetting(R.string.speedMultiplier, R.string.speedMultiplierDefault));
+		GUIFallingOsuSliderEnd.BLINK_SPEED = Tools.getScrollSpeed();
 		if (fallingobjects != null) {
 			for (GUIFallingObject fo : fallingobjects) {
 				if (fo != null) {

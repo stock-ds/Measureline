@@ -446,6 +446,25 @@ public class GUIHandlerTap extends GUIHandler {
 		}
 		return selected;
 	}
+
+	@Override
+	public int onTouch_Move(float x, float y, int previousPitches) {
+		int selected = 0;
+		for (int pitch = 0; pitch < Tools.PITCHES; pitch++) {
+			boolean inside = y >= hitbox_top[pitch] &&
+				y <= hitbox_bottom[pitch] &&
+				x >= hitbox_left[pitch] &&
+				x <= hitbox_right[pitch];
+			boolean wasDown = (previousPitches & (1 << pitch)) != 0;
+			if (inside) {
+				if (!wasDown) onTouch_Down_One(pitch);
+				selected |= (1 << pitch);
+			} else if (wasDown) {
+				onTouch_Up_One(pitch);
+			}
+		}
+		return selected;
+	}
 	
 	// Called by autoPlay
 	private boolean onTouch_Down(int pitches) {

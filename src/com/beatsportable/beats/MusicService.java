@@ -1,6 +1,7 @@
 package com.beatsportable.beats;
 
 import android.media.MediaPlayer;
+import android.os.Build;
 
 public class MusicService {
 	
@@ -9,6 +10,7 @@ public class MusicService {
 	
 	private int pauseTime;
 	private boolean isStarted;
+	private float songSpeed;
 	
 	private void setupMusicPlayer() {
 		try {
@@ -38,7 +40,18 @@ public class MusicService {
 	public MusicService(String musicFilePath) {
 		this.musicFilePath = musicFilePath;
 		this.isStarted = false;
+		this.songSpeed = Tools.getSongSpeed();
 		setupMusicPlayer();
+	}
+
+	private void applySongSpeed() {
+		if (p == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+		if (Math.abs(songSpeed - 1f) < 0.001f) return;
+		try {
+			p.setPlaybackParams(p.getPlaybackParams().setSpeed(songSpeed));
+		} catch (Exception e) {
+			ToolsTracker.error("MusicService.applySongSpeed", e, musicFilePath);
+		}
 	}
 	
 	public int getCurrentPosition() {
@@ -65,6 +78,7 @@ public class MusicService {
 						);
 			p.seekTo(0);
 			p.start();
+			applySongSpeed();
 			isStarted = true;
 		} catch (IllegalStateException e) {
 			ToolsTracker.error("MusicService.startPlaying", e, musicFilePath);
@@ -114,6 +128,7 @@ public class MusicService {
 				if (pauseTime > 20) // Delay 20ms
 					p.seekTo(pauseTime - 20);
 				p.start();
+				applySongSpeed();
 			}
 		} catch (IllegalStateException e) {
 			ToolsTracker.error("MusicService.resumePlaying", e, musicFilePath);

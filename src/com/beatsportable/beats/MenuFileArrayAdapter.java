@@ -32,9 +32,16 @@ public class MenuFileArrayAdapter extends ArrayAdapter<MenuFileItem>{
 		final MenuFileItem i = items.get(position);
 		if (i != null) {
 			ImageView iv = (ImageView) v.findViewById(R.id.iconview);
+			SongSelectInfo info = null;
+			if (i.getFile() != null && (i.isDirectory() || Tools.isStepfile(i.getPath()))) {
+				info = SongSelectInfo.forItem(i.getFile(), i.isDirectory());
+			}
 			if (iv != null) {
 				String s = i.getName();
-				if (i.getFile() == null) {
+				android.graphics.Bitmap banner = (info != null) ? info.getBannerBitmap() : null;
+				if (banner != null) {
+					iv.setImageBitmap(banner);
+				} else if (i.getFile() == null) {
 					iv.setImageResource(R.drawable.icon_folder_parent);
 				} else if (i.isDirectory()) {
 					if (Tools.checkStepfileDir(i.getFile()) != null) {
@@ -65,6 +72,16 @@ public class MenuFileArrayAdapter extends ArrayAdapter<MenuFileItem>{
 			TextView tv = (TextView) v.findViewById(R.id.textview);
 			if (tv != null) {
 				tv.setText(i.getName());	
+			}
+			TextView stats = (TextView) v.findViewById(R.id.statsview);
+			if (stats != null) {
+				if (info != null && info.statsText != null && info.statsText.length() > 0) {
+					stats.setText(info.statsText);
+					stats.setVisibility(View.VISIBLE);
+				} else {
+					stats.setText("");
+					stats.setVisibility(View.GONE);
+				}
 			}
 		}
 		return v;
