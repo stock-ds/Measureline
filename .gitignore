@@ -16,6 +16,10 @@ gen/
 .gradle/
 build/
 
+# Android Studio / IntelliJ local state (do not commit)
+.idea/
+*.iml
+
 # Local configuration file (sdk path, etc)
 local.properties
 

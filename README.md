@@ -33,8 +33,8 @@ In respect of the original author's note above: the upstream repository ([Keripo
 ## Building locally
 
 Requirements:
-- JDK 17+
-- Android SDK with platform `android-34` and build-tools `34.0.0` (install via Android Studio's SDK Manager, or `sdkmanager --sdk_root=<path> "platform-tools" "platforms;android-34" "build-tools;34.0.0"`)
+- JDK 25 to run Gradle (Android Studio's bundled JBR is fine). The app still compiles to Java 8 bytecode for `minSdk 21`.
+- Android SDK with platform `android-34` and build-tools `36.0.0` (install via Android Studio's SDK Manager, or `sdkmanager --sdk_root=<path> "platform-tools" "platforms;android-34" "build-tools;36.0.0"`)
 
 Steps:
 1. Clone this repo.
