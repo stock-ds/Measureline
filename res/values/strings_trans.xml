@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="App_description">"Measureline is a StepMania-compatible rhythm game where you tap to the beat of installed song packs."</string>
+  <string name="App_description">"PocketArrows is a StepMania-compatible rhythm game. Tap the arrows to the beat of your song packs."</string>
   <string name="Menu_start">" start "</string>
   <string name="Menu_select_song">" select song "</string>
   <string name="Menu_download_songs">" download songs "</string>
@@ -34,15 +34,16 @@
   <string name="Accuracy_miss">"Miss"</string>
   <string name="Accuracy_ok">"OK"</string>
   <string name="Accuracy_no_good">"No Good"</string>
-  <string name="MenuHome_titlebar">"Measureline - StepMania on Android"</string>
+  <string name="MenuHome_titlebar">"PocketArrows"</string>
   <string name="MenuHome_legacy_warning">"Your phone is currently running Android 1.5 (Cupcake) or 1.6 (Donut), which do not fully support multi-touch capabilities. It is highly recommended you upgrade to 2.1 (Eclair) or higher. Beats can still run with single-touch but many stepfiles will be very difficult to play."</string>
   <string name="MenuHome_background_sync_warning">"Your phone currently has \"Background data\" enabled. Turning off \"Background data\" helps prevent other apps from causing Beats gameplay to lag. Alternatively, you can increase \"Application Priority\" in \"Advanced Settings\".\n\nDo you wish to change your \"Background data\" setting\? (Recommended to reduce lag)"</string>
   <string name="MenuHome_background_sync_undo">"You previously disabled your \"Background data\" setting. Would you like to update the setting now\?"</string>
   <string name="MenuHome_background_sync_fail">"The background data setting could not be modified."</string>
   <string name="MenuHome_background_image_load_fail">"Unable to load background image - out of memory!"</string>
   <string name="MenuHome_new_user_notes_title">"New User Notes"</string>
-  <string name="MenuHome_release_notes_title">"Beats Release Notes"</string>
-  <string name="MenuSettings_title">"Measureline - Settings"</string>
+  <string name="MenuHome_release_notes_title">"PocketArrows Notes"</string>
+  <string name="MenuSettings_title">"PocketArrows - Settings"</string>
+  <string name="Splash_skip">"SKIP"</string>
   <string name="DataParser_unsupported">"Unsupported stepfile: only .sm, .dwi and .osu files are supported currently."</string>
   <string name="MenuStartGame_loading_title">"Loading: "</string>
   <string name="MenuStartGame_loading_progress_bar">"Loading stepfile:\n"</string>

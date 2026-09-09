@@ -1,4 +1,4 @@
-Measureline
+PocketArrows
 =====
 A StepMania-compatible rhythm game for Android, forked from Beats.
 
@@ -15,10 +15,11 @@ All source code is available under Modified BSD license.
 
 ## About this fork
 
-This fork ([stock-ds/Beats](https://github.com/stock-ds/Beats)) is now **Measureline**: a StepMania-compatible continuation of Beats for current Android, without adopting RevoluTap's UI rewrite. The original 2013-era Beats build can't be installed on current devices at all.
+This fork ([stock-ds/Beats](https://github.com/stock-ds/Beats)) is now **PocketArrows**: a StepMania-compatible continuation of Beats for current Android, without adopting RevoluTap's UI rewrite.
 
 - Migrated the build from Eclipse ADT/Ant to Gradle, targeting Android 14 (API 34)
-- Play Store identity: `com.stockds.measureline` (Java packages remain `com.beatsportable.beats`)
+- Branding: PocketArrows logo, splash, and intro video
+- Play Store identity: `com.stockds.pocketarrows` (Java packages remain `com.beatsportable.beats`)
 - Song speed multiplier and free-form scroll/song speed numbers
 - Song-select banners, note counts, NPS, and best score
 - Hardware SurfaceView so gameplay can match display refresh
@@ -47,9 +48,9 @@ Steps:
    ./gradlew assembleDebug
    ```
    (use `gradlew.bat` on Windows)
-4. The debug APK is written to `build/outputs/apk/debug/Measureline-debug.apk`. Install it with:
+4. The debug APK is written to `build/outputs/apk/debug/PocketArrows-debug.apk`. Install it with:
    ```
-   adb install -r build/outputs/apk/debug/Measureline-debug.apk
+   adb install -r build/outputs/apk/debug/PocketArrows-debug.apk
    ```
 
 Windows users can instead run [`setup_sdk.ps1`](setup_sdk.ps1), which downloads the Android command-line tools, Gradle, and the required SDK packages automatically (edit the paths at the top of the script first if you don't want the defaults under `c:\_dev`).
@@ -61,13 +62,13 @@ Release builds use a local upload keystore. Secrets are **not** in git.
 1. Copy [`keystore.properties.example`](keystore.properties.example) to `keystore.properties`.
 2. Generate an upload key (once) and keep a backup of the `.jks` **and** passwords:
    ```
-   keytool -genkeypair -v -keystore keystore/measureline-upload.jks -alias measureline -keyalg RSA -keysize 2048 -validity 10000
+   keytool -genkeypair -v -keystore keystore/pocketarrows-upload.jks -alias pocketarrows -keyalg RSA -keysize 2048 -validity 10000
    ```
 3. Fill `storeFile`, `storePassword`, `keyAlias`, and `keyPassword` in `keystore.properties`.
 4. Build the signed release APK:
    ```
    ./gradlew assembleRelease
    ```
-   Output: `build/outputs/apk/release/Measureline-release.apk`.
+   Output: `build/outputs/apk/release/PocketArrows-release.apk`.
 
-Create the Play Console app with application id `com.stockds.measureline`, then upload that APK (or an AAB later) as the first release. Google Play App Signing will accept this as the upload key.
+Create the Play Console app with application id `com.stockds.pocketarrows` and store title PocketArrows, then upload that APK as the first release.

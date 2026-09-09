@@ -16,4 +16,4 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Measureline"
+rootProject.name = "PocketArrows"

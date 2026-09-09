@@ -150,10 +150,10 @@ public class MenuHome extends Activity {
 		allFilesAccessAsked = true;
 		new AlertDialog.Builder(this)
 			.setTitle("Allow access to songs folder")
-			.setMessage("To add your own songs, Beats needs \"All files access\". "
-				+ "This lets it use the Beats folder on your internal storage "
-				+ "(/storage/emulated/0/Beats), which you can open in any file manager.\n\n"
-				+ "Tap Continue, then turn on the toggle for Beats.")
+		.setMessage("To add your own songs, PocketArrows needs \"All files access\". "
+			+ "This lets it use the Beats folder on your internal storage "
+			+ "(/storage/emulated/0/Beats), which you can open in any file manager.\n\n"
+			+ "Tap Continue, then turn on the toggle for PocketArrows.")
 			.setCancelable(true)
 			.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
@@ -178,7 +178,7 @@ public class MenuHome extends Activity {
 			try {
 				startActivity(new Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
 			} catch (Exception e2) {
-				Tools.toast("Please enable 'All files access' for Beats in Settings > Apps.");
+Tools.toast("Please enable 'All files access' for PocketArrows in Settings > Apps.");
 			}
 		}
 	}
